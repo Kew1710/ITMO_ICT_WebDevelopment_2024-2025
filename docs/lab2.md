@@ -15,35 +15,35 @@
 ## Модели
 
 # Тур
-class Tour(models.Model):
-    name = models.CharField(max_length=200)
-    agency = models.CharField(max_length=200)
-    description = models.TextField()
-    period = models.CharField(max_length=200)
-    payment_conditions = models.TextField()
+    class Tour(models.Model):
+        name = models.CharField(max_length=200)
+        agency = models.CharField(max_length=200)
+        description = models.TextField()
+        period = models.CharField(max_length=200)
+        payment_conditions = models.TextField()
 
     def __str__(self):
         return self.name
 
 # Бронирование
 
-class Reservation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    tour = models.ForeignKey(Tour, on_delete=models.CASCADE)
-    reserved_on = models.DateTimeField(auto_now_add=True)
-    is_confirmed = models.BooleanField(default=False)
+    class Reservation(models.Model):
+        user = models.ForeignKey(User, on_delete=models.CASCADE)
+        tour = models.ForeignKey(Tour, on_delete=models.CASCADE)
+        reserved_on = models.DateTimeField(auto_now_add=True)
+        is_confirmed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Бронирование {self.tour.name} для {self.user.username}"
         
 # Отзыв
 
-class Review(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    tour = models.ForeignKey(Tour, on_delete=models.CASCADE)
-    text = models.TextField()  # Текст отзыва
-    rating = models.PositiveSmallIntegerField(default=1)
-    created_at = models.DateTimeField(auto_now_add=True)
+    class Review(models.Model):
+        user = models.ForeignKey(User, on_delete=models.CASCADE)
+        tour = models.ForeignKey(Tour, on_delete=models.CASCADE)
+        text = models.TextField()  # Текст отзыва
+        rating = models.PositiveSmallIntegerField(default=1)
+        created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Отзыв от {self.user.username} на {self.tour.name}"
@@ -51,64 +51,64 @@ class Review(models.Model):
 ## Представления
 
 # Тур - лист
-def tour_list(request):
-    tours = Tour.objects.all()
-    return render(request, 'tours/tour_list.html', {'tours': tours})
+    def tour_list(request):
+        tours = Tour.objects.all()
+        return render(request, 'tours/tour_list.html', {'tours': tours})
 
 # Детали тура
 
-def tour_detail(request, tour_id):
-    tour = get_object_or_404(Tour, id=tour_id)
-    reviews = Review.objects.filter(tour=tour)
+    def tour_detail(request, tour_id):
+        tour = get_object_or_404(Tour, id=tour_id)
+        reviews = Review.objects.filter(tour=tour)
 
-    is_reserved = False
-    if request.user.is_authenticated:
-        is_reserved = Reservation.objects.filter(user=request.user, tour=tour).exists()
-
-    return render(request, 'tours/tour_detail.html', {
-        'tour': tour,
-        'reviews': reviews,
-        'is_reserved': is_reserved
-    })
+        is_reserved = False
+        if request.user.is_authenticated:
+            is_reserved = Reservation.objects.filter(user=request.user, tour=tour).exists()
+    
+        return render(request, 'tours/tour_detail.html', {
+            'tour': tour,
+            'reviews': reviews,
+            'is_reserved': is_reserved
+        })
 
 # Отмена регистрации
 
-@login_required
-def cancel_reservation(request, tour_id):
-    tour = get_object_or_404(Tour, id=tour_id)
+    @login_required
+    def cancel_reservation(request, tour_id):
+        tour = get_object_or_404(Tour, id=tour_id)
 
-    reservation = Reservation.objects.filter(user=request.user, tour=tour).first()
-    if reservation:
-        reservation.delete()
-
-    return redirect('tour_detail', tour_id=tour.id)
+        reservation = Reservation.objects.filter(user=request.user, tour=tour).first()
+        if reservation:
+            reservation.delete()
+    
+        return redirect('tour_detail', tour_id=tour.id)
 
 # Бронирование тура
 
-@login_required
-def reserve_tour(request, tour_id):
-    tour = get_object_or_404(Tour, id=tour_id)
-    if Reservation.objects.filter(user=request.user, tour=tour).exists():
+    @login_required
+    def reserve_tour(request, tour_id):
+        tour = get_object_or_404(Tour, id=tour_id)
+        if Reservation.objects.filter(user=request.user, tour=tour).exists():
+            return redirect('tour_detail', tour_id=tour.id)
+        Reservation.objects.create(user=request.user, tour=tour)
         return redirect('tour_detail', tour_id=tour.id)
-    Reservation.objects.create(user=request.user, tour=tour)
-    return redirect('tour_detail', tour_id=tour.id)
 
 # Добавление отзыва
 
-@login_required
-def add_review(request, tour_id):
-    tour = get_object_or_404(Tour, id=tour_id)
-    if request.method == 'POST':
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.user = request.user
-            review.tour = tour
-            review.save()
-            return redirect('tour_detail', tour_id=tour.id)
-    else:
-        form = ReviewForm()
-    return render(request, 'tours/add_review.html', {'form': form, 'tour': tour})
+    @login_required
+    def add_review(request, tour_id):
+        tour = get_object_or_404(Tour, id=tour_id)
+        if request.method == 'POST':
+            form = ReviewForm(request.POST)
+            if form.is_valid():
+                review = form.save(commit=False)
+                review.user = request.user
+                review.tour = tour
+                review.save()
+                return redirect('tour_detail', tour_id=tour.id)
+        else:
+            form = ReviewForm()
+        return render(request, 'tours/add_review.html', {'form': form, 'tour': tour})
     
 # Регистрация
 
@@ -139,18 +139,18 @@ def add_review(request, tour_id):
 
 ## Пути
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('',include('tours.urls')),
-    path('logout/', views.custom_logout, name='logout'),  # Маршрут для выхода
-    path('login/', LoginView.as_view(), name='login'),
-    path('', views.tour_list, name='tour_list'),
-    path('tour/<int:tour_id>/', views.tour_detail, name='tour_detail'),
-    path('tour/<int:tour_id>/reserve/', views.reserve_tour, name='reserve_tour'),
-    path('tour/<int:tour_id>/cancel/', views.cancel_reservation, name='cancel_reservation'),
-    path('register/', views.register, name='register'),
-    path('tour/<int:tour_id>/add_review/', views.add_review, name='add_review')
-]
+    urlpatterns = [
+        path('admin/', admin.site.urls),
+        path('',include('tours.urls')),
+        path('logout/', views.custom_logout, name='logout'),  # Маршрут для выхода
+        path('login/', LoginView.as_view(), name='login'),
+        path('', views.tour_list, name='tour_list'),
+        path('tour/<int:tour_id>/', views.tour_detail, name='tour_detail'),
+        path('tour/<int:tour_id>/reserve/', views.reserve_tour, name='reserve_tour'),
+        path('tour/<int:tour_id>/cancel/', views.cancel_reservation, name='cancel_reservation'),
+        path('register/', views.register, name='register'),
+        path('tour/<int:tour_id>/add_review/', views.add_review, name='add_review')
+    ]
 
 
 ---
