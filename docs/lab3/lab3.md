@@ -22,7 +22,7 @@
 
 Хранит информацию о сотрудниках компании, включая их роль в типографии.
 
-#Поля:
+# Поля:
 
 first_name (CharField, max_length=50): Имя сотрудника.
 last_name (CharField, max_length=50): Фамилия сотрудника.
@@ -30,74 +30,74 @@ role (CharField, max_length=20, choices=Role.choices): Роль сотрудни
 email (EmailField, unique=True): Электронная почта сотрудника.
 phone_number (CharField, max_length=20, blank=True): Номер телефона.
 address (CharField, max_length=255, blank=True): Адрес.
-Метаданные:
+# Метаданные:
 
 verbose_name: "Employee"
 verbose_name_plural: "Employees"
-Методы:
+# Методы:
 
 __str__(): Возвращает полное имя сотрудника.
 Модель Author (Автор)
-Описание:
+# Описание:
 
 Хранит информацию об авторах книг.
 
-#Поля:
+# Поля:
 
 first_name (CharField, max_length=50): Имя автора.
 last_name (CharField, max_length=50): Фамилия автора.
 biography (TextField, blank=True): Биография автора.
 email (EmailField, unique=True, blank=True, null=True): Электронная почта.
 phone_number (CharField, max_length=20, blank=True): Номер телефона.
-#Метаданные:
+# Метаданные:
 
 verbose_name: "Author"
 verbose_name_plural: "Authors"
-#Методы:
+# Методы:
 
 __str__(): Возвращает полное имя автора.
 Модель Book (Книга)
-#Описание:
-
+# Описание:
+ 
 Хранит информацию о книгах.
 
-#Поля:
+# Поля:
 
 title (CharField, max_length=200): Название книги.
 authors (ManyToManyField к Author через BookAuthor): Авторы книги.
-#Метаданные:
+# Метаданные:
 
 verbose_name: "Book"
 verbose_name_plural: "Books"
-Методы:
+# Методы:
 
 __str__(): Возвращает название книги.
 Модель BookAuthor (Автор книги)
-#Описание:
+# Описание:
 
 Промежуточная модель для связи многих ко многим между Book и Author с дополнительными полями.
 
-#Поля:
+# Поля:
 
 book (ForeignKey к Book): Ссылка на книгу.
 author (ForeignKey к Author): Ссылка на автора.
 order (PositiveIntegerField): Порядок автора на обложке (влияет на размер гонорара).
 royalty_percentage (DecimalField, max_digits=5, decimal_places=2): Процент гонорара.
-#Метаданные:
+# Метаданные:
 
 unique_together: ('book', 'author')
 ordering: ['order']
 verbose_name: "Book Author"
 verbose_name_plural: "Book Authors"
-#Методы:
+# Методы:
 
 __str__(): Возвращает информацию об авторе и книге с указанием порядка на обложке.
 Модель Edition (Издание)
-#Описание:
+# Описание:
 
 Хранит информацию об изданиях книг.
 
-#Поля:
+# Поля:
 
 book (ForeignKey к Book): Ссылка на книгу.
 edition_number (PositiveIntegerField): Номер издания.
@@ -105,100 +105,100 @@ publication_date (DateField): Дата публикации.
 number_of_pages (PositiveIntegerField): Количество страниц.
 has_illustrations (BooleanField, default=False): Наличие иллюстраций.
 editors (ManyToManyField к Employee через EditionEditor): Редакторы издания.
-#Метаданные:
+# Метаданные:
 
 unique_together: ('book', 'edition_number')
 verbose_name: "Edition"
 verbose_name_plural: "Editions"
-#Методы:
+# Методы:
 
 __str__(): Возвращает название книги и номер издания.
 Модель Contract (Контракт)
-#Описание:
+# Описание:
 
 Хранит информацию о контрактах на издание книг.
 
-#Поля:
+# Поля:
 
 edition (OneToOneField к Edition): Ссылка на издание.
 manager (ForeignKey к Employee): Менеджер, подписавший контракт.
 date_signed (DateField): Дата подписания контракта.
-#Метаданные:
+# Метаданные:
 
 verbose_name: "Contract"
 verbose_name_plural: "Contracts"
-#Методы:
+# Методы:
 
 __str__(): Возвращает информацию о контракте и издании.
 Модель EditionEditor (Редактор издания)
-#Описание:
+# Описание:
 
 Промежуточная модель для связи многих ко многим между Edition и Employee с дополнительными полями.
 
-#Поля:
+# Поля:
 
 edition (ForeignKey к Edition): Ссылка на издание.
 editor (ForeignKey к Employee): Ссылка на редактора.
 is_responsible_editor (BooleanField, default=False): Является ли ответственным редактором.
-#Метаданные:
+# Метаданные:
 
 unique_together: ('edition', 'editor')
 verbose_name: "Edition Editor"
 verbose_name_plural: "Edition Editors"
-#Методы:
+# Методы:
 
 __str__(): Возвращает информацию о редакторе и издании с указанием роли.
 Модель Customer (Заказчик)
-#Описание:
+# Описание:
 
 Хранит информацию о заказчиках.
 
-#Поля:
+# Поля:
 
 name (CharField, max_length=100): Наименование заказчика.
 email (EmailField, unique=True): Электронная почта.
 phone_number (CharField, max_length=20, blank=True): Номер телефона.
 address (CharField, max_length=255, blank=True): Адрес.
-#Метаданные:
+# Метаданные:
 
 verbose_name: "Customer"
 verbose_name_plural: "Customers"
-#Методы:
+# Методы:
 
 __str__(): Возвращает наименование заказчика.
 Модель Order (Заказ)
-#Описание:
+# Описание:
 
 Хранит информацию о заказах на покупку книг.
 
-#Поля:
+# Поля:
 
 customer (ForeignKey к Customer): Ссылка на заказчика.
 date_ordered (DateField): Дата заказа.
 items (ManyToManyField к Edition через OrderItem): Позиции заказа.
-#Метаданные:
+# Метаданные:
 
 verbose_name: "Order"
 verbose_name_plural: "Orders"
-#Методы:
+# Методы:
 
 __str__(): Возвращает идентификатор заказа и имя заказчика.
 Модель OrderItem (Позиция заказа)
-#Описание:
+# Описание:
 
 Промежуточная модель для связи многих ко многим между Order и Edition с дополнительным полем количества.
 
-#Поля:
+# Поля:
 
 order (ForeignKey к Order): Ссылка на заказ.
 edition (ForeignKey к Edition): Ссылка на издание.
 quantity (PositiveIntegerField, default=1): Количество единиц товара.
-#Метаданные:
+# Метаданные:
 
 unique_together: ('order', 'edition')
 verbose_name: "Order Item"
 verbose_name_plural: "Order Items"
-#Методы:
+# Методы:
 
 __str__(): Возвращает количество и информацию об издании в заказе.
 Соответствие требованиям задания
